@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analyzing Bike Rental Demand: Exploratory Data Analysis (EDA)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="bike-share-code_files/libs/clipboard/clipboard.min.js"></script>
+<script src="bike-share-code_files/libs/quarto-html/quarto.js"></script>
+<script src="bike-share-code_files/libs/quarto-html/popper.min.js"></script>
+<script src="bike-share-code_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="bike-share-code_files/libs/quarto-html/anchor.min.js"></script>
+<link href="bike-share-code_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="bike-share-code_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="bike-share-code_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="bike-share-code_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="bike-share-code_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analyzing Bike Rental Demand: Exploratory Data Analysis (EDA)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Learning Objectives:</p>
+<ul>
+<li><p>Frame appropriate questions for the EDA phase</p></li>
+<li><p>Determine which analytical tools and graphs are appropriate for use</p></li>
+<li><p>Draw implications from data to guide future analysis.</p></li>
+</ul>
+<p>Assignment Questions:</p>
+<ol type="1">
+<li>Does seasonality affect the total number of rentals?</li>
+<li>How do temperature values change over the seasons?</li>
+<li>Is the correlation between temperature and the number of bike rentals significant? Is there a difference between the correlations for two years?</li>
+<li>For which weather conditions is the number of total bike rentals the lowest and the highest?</li>
+<li>How do weather conditions influence the distribution of bike rentals?</li>
+<li>Is there a significant difference between the total bike rentals on weekends and on working days? How do casual riders and registered riders behave differently?</li>
+</ol>
+<p>Answering the assignment questions and developing insights from computing results:</p>
+<section id="analysis" class="level2">
+<h2 class="anchored" data-anchor-id="analysis">ANALYSIS</h2>
+<section id="does-seasonality-affect-the-total-number-of-rentals" class="level3">
+<h3 class="anchored" data-anchor-id="does-seasonality-affect-the-total-number-of-rentals">1. Does seasonality affect the total number of rentals?</h3>
+<p>To explore the data using R, we first need to read the dataset and check each variable’s properties.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bikeshare <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"raw-data/bikeshare.csv"</span>,<span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(bikeshare)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   17466 obs. of  17 variables:
+ $ year       : int  2016 2016 2016 2016 2016 2016 2016 2016 2016 2016 ...
+ $ month      : int  10 10 10 10 10 10 10 10 10 10 ...
+ $ day        : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ hour       : int  0 1 2 3 4 5 6 7 8 9 ...
+ $ member     : int  80 53 27 20 11 14 38 104 133 145 ...
+ $ weekend    : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ season     : chr  "fall" "fall" "fall" "fall" ...
+ $ temperature: num  18.3 17.8 17.8 17.8 17.8 ...
+ $ dewpoint   : num  65 64 64 64 64 64 64 64 64 63.5 ...
+ $ humidity   : num  100 100 100 100 100 100 100 100 100 98 ...
+ $ windspeed  : num  6 10 10 10 9 9 12 13 14 9 ...
+ $ windgust   : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ pressure   : num  30.1 30.1 30.1 30.1 30.1 30.1 30.1 30.1 30.1 30.1 ...
+ $ precip     : num  0 0 0 0.1 0 0 0 0 0 0.05 ...
+ $ precipaccum: num  0 0 0 0 0 0 0 0 0.2 0 ...
+ $ weather    : int  3 3 3 3 3 3 3 3 3 3 ...
+ $ rental     : int  103 63 33 23 11 15 42 115 146 174 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bikeshare</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(bikeshare<span class="sc">$</span>rental)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="bike-share-code_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(bikeshare<span class="sc">$</span>rental)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="bike-share-code_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To analyse how seasonality affects bike demand, we first want to look at the uniqueness of each season and determine each season’s respective months.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(bikeshare<span class="sc">$</span>month[bikeshare<span class="sc">$</span>season<span class="sc">==</span><span class="st">"fall"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10 11  9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(bikeshare<span class="sc">$</span>month[bikeshare<span class="sc">$</span>season<span class="sc">==</span><span class="st">"winter"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 12  1  2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(bikeshare<span class="sc">$</span>month[bikeshare<span class="sc">$</span>season<span class="sc">==</span><span class="st">"spring"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3 4 5</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(bikeshare<span class="sc">$</span>month[bikeshare<span class="sc">$</span>season<span class="sc">==</span><span class="st">"summer"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6 7 8</code></pre>
+</div>
+</div>
+<p>We can observe that fall spans September to November, winter spans December to February, spring lasts from March to May, and summer lasts from June to August. The data tells that there is no month that overlaps two seasons.</p>
+<p>Here the astronomical seasons categorization is followed. Temperature based seasons categorization will lead us to have better accuracy. However categorization by temperature based seasons is not analyzed in this case.</p>
+<ul>
+<li><p>to visualize whether seasonality has an impact on the hourly number of bike rentals, we want to categorize the data by seasons.</p>
+<p>Step 1. Creating an empty table</p>
+<p>Step 2. Filling the data frame with the corresponding values by calculating the mean, median and standard deviation for each season.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">spring =</span> <span class="fu">rep</span>(<span class="cn">NA</span>,<span class="dv">3</span>),</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">summer =</span> <span class="fu">rep</span>(<span class="cn">NA</span>,<span class="dv">3</span>),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">fall =</span> <span class="fu">rep</span>(<span class="cn">NA</span>,<span class="dv">3</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">winter =</span> <span class="fu">rep</span>(<span class="cn">NA</span>,<span class="dv">3</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  spring summer fall winter
+1     NA     NA   NA     NA
+2     NA     NA   NA     NA
+3     NA     NA   NA     NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"mean"</span>,<span class="st">"median"</span>,<span class="st">"IQR"</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       spring summer fall winter
+mean       NA     NA   NA     NA
+median     NA     NA   NA     NA
+IQR        NA     NA   NA     NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>vec <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"mean"</span>,<span class="st">"median"</span>,<span class="st">"IQR"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>vec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "mean"   "median" "IQR"   </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (n <span class="cf">in</span> vec) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">unique</span>(bikeshare<span class="sc">$</span>season))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    data1 <span class="ot">&lt;-</span> <span class="fu">get</span>(n)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">data1</span>(bikeshare<span class="sc">$</span>rental[bikeshare<span class="sc">$</span>season <span class="sc">==</span> i])</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    df[n,i] <span class="ot">&lt;-</span> res</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         spring   summer     fall   winter
+mean   429.5124 546.2637 448.1924 254.4187
+median 323.0000 496.5000 358.0000 177.0000
+IQR    570.5000 727.2500 569.0000 325.0000</code></pre>
+</div>
+</div>
+<p>Based on the numbers above, we can observe that the highest mean, median and standard deviation values of hourly bike rentals (546.2637, 496.5 and 440.1982) occur in the summer, while the lowest mean, median and standard deviation values (254.4187, 177, and 269.8707) occur in the winter.</p>
+<ul>
+<li>The next step is to identify whether season statistically correlates to the hourly bike rental amount. (Use ANOVA - to identify whether season has a significant correlation with hourly demand)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demonstration of ANOVA</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">aov</span>(rental <span class="sc">~</span> season,<span class="at">data =</span> bikeshare))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Df    Sum Sq  Mean Sq F value Pr(&gt;F)    
+season          3 1.920e+08 64006520   423.8 &lt;2e-16 ***
+Residuals   17462 2.637e+09   151016                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Analysis of variance model demonstrates that number of rentals and season are significantly correlated, with a p-value of less than 0.05. This verifies our result from the table analysis and shows that seasonality affects user’s riding decisions.</p>
+<ul>
+<li>Finally,to visualize the differences more clearly, we can create a box plot for hourly bike rentals and season to reveal the most popular and least popular seasons.</li>
+</ul>
+<p>Box Plot:</p>
+<p>A box plot is a standardized way of displaying the distribution of data based on the five-number summary: minimum, first quartile, median, third quartile, and maximum. Box plots are frequently used to compare univariate data.</p>
+<p>In each box, the central rectangle spans the first quartile to the third quartile (i.e., the interquartile range [IQR]). A segment inside the rectangle shows the median, and the “whiskers” above and below the box show the location of the minimum and maximum.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(rental <span class="sc">~</span> season,</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> bikeshare,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Season"</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Number of Bike Rentals"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Count by Season"</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="bike-share-code_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To highlight the extreme outliers (3 * IQR):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(rental <span class="sc">~</span> season,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> bikeshare,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Season"</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Number of Bike Rentals"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Count by Season"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(rental <span class="sc">~</span> season,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> bikeshare,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"white"</span>, </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">add =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">range =</span> <span class="dv">3</span>, </span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">pars =</span> <span class="fu">list</span>(<span class="at">outpch =</span> <span class="dv">20</span>, <span class="at">outcol =</span> <span class="st">"orange"</span>,  <span class="at">staplelty =</span> <span class="dv">0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="bike-share-code_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="insightinference" class="level4">
+<h4 class="anchored" data-anchor-id="insightinference">Insight/Inference:</h4>
+<p>By looking at the average hourly bike rental amount for each season,</p>
+<ul>
+<li><p>the box plot shows that the most popular seasons for renting a bike are summer and fall,</p></li>
+<li><p>while the most unpopular season for doing so is winter.</p></li>
+<li><p>Each box contains 50% of the data, with the lower boundary representing the first quartile and the upper boundry representing the third quartile.</p></li>
+<li><p>By looking at each box’s median, we can determine that winter has the lowest hourly bike rental amount,</p></li>
+<li><p>while summer has the highest hourly bike rental amount.</p></li>
+</ul>
+<p>The outliers show that there are not surprisingly high maximums for summer, and the data points for hourly demand are expected to fit in the distribution. However, for other seasons, there are a lot of suspected outliers, indicating that hourly demand fluctuates throughout corresponding season.</p>
+<p>Overall, the graph illuatrates that people tend to ride more in the summer and less in the winter. Next, we will explore whether temperature and weather conditions are factors behind the seasonality paterns that change people’s riding decisions.</p>
+</section>
+</section>
+<section id="how-do-temperature-values-change-over-the-seasons" class="level3">
+<h3 class="anchored" data-anchor-id="how-do-temperature-values-change-over-the-seasons">2. How do temperature values change over the seasons?</h3>
+<ul>
+<li><p>In order to visualize whether seasonality has an impact on the hourly number of bike rentals, we want to categorize the temperature data by seasons.</p></li>
+<li><p>The next step is to create a table and calculate the mean, standard deviation, and median of temperature for each season. (In this step, we need to import the dplyr library in R)</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bikeshare.agg <span class="ot">&lt;-</span> bikeshare <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(season) <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">temp.min =</span> <span class="fu">min</span>(temperature),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">temp.max =</span> <span class="fu">max</span>(temperature),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">temp.med =</span> <span class="fu">median</span>(temperature),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">temp.stdev =</span> <span class="fu">sd</span>(temperature),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">temp.mean =</span> <span class="fu">mean</span>(temperature),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>bikeshare.agg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 7
+  season temp.min temp.max temp.med temp.stdev temp.mean count
+  &lt;chr&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;
+1 fall      -3.33     34.4    17.2        6.99     16.9   4365
+2 spring    -5.56     32.8    14.4        7.84     14.1   4407
+3 summer    13.3      36.1    25.6        3.86     25.9   4376
+4 winter   -12.8      26.7     5.56       6.45      5.22  4318</code></pre>
+</div>
+</div>
+<ul>
+<li>the next step is to visualize these analyses by using a box plot to illustrate temperature variations by season.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(temperature <span class="sc">~</span> season,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> bikeshare,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Season"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Temperature (°C)"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Temperature by Season"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"white"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="bike-share-code_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="insightinference-1" class="level4">
+<h4 class="anchored" data-anchor-id="insightinference-1">Insight/Inference:</h4>
+<p>As can be seen from the analysis above, the lowest minimum temperature as well as minimum mean temperature (-12.78°C and 5.22°C, respectively) apply to winter, and the maximum temperature as well as the maximum mean value (36.11°C and 25.88°C, respectively) belong to summer.</p>
+<p>The box plot clearly demonstrates that the lowest temperatures occur in the winter, with the next-lowest temperatures occurring in the spring, while the highest temperatures occur in the summer, with the next-highest temperatures occurring in the fall.</p>
+</section>
+</section>
+<section id="is-the-correlation-between-temperature-and-the-number-of-bike-rentals-significant-is-there-a-difference-between-the-correlations-for-two-years" class="level3">
+<h3 class="anchored" data-anchor-id="is-the-correlation-between-temperature-and-the-number-of-bike-rentals-significant-is-there-a-difference-between-the-correlations-for-two-years">3. Is the correlation between temperature and the number of bike rentals significant? Is there a difference between the correlations for two years?</h3>
+<ul>
+<li>The first step is to identify whether the overall temperature data is statistically correlated to the hourly bike rental amount on a consecutive two year basis. We will use the ANOVA analysis tool to identify whether temperature is a significant factor for hourly demand.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">aov</span>(rental <span class="sc">~</span> temperature, <span class="at">data =</span> bikeshare))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Df    Sum Sq   Mean Sq F value Pr(&gt;F)    
+temperature     1 5.387e+08 538721179    4108 &lt;2e-16 ***
+Residuals   17464 2.290e+09    131147                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Analysis of the variance model demonstrates that number of hourly rentals and temperatures are significantly correlated, with a p-value of less than 0.05. Next, we will use linear regression to determine to what extent hourly demand will be affected by temperature changes of 1°C.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(rental <span class="sc">~</span> temperature, bikeshare))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = rental ~ temperature, data = bikeshare)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-662.12 -248.68  -59.26  183.72 1498.39 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 141.1802     5.1433   27.45   &lt;2e-16 ***
+temperature  17.9312     0.2798   64.09   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 362.1 on 17464 degrees of freedom
+Multiple R-squared:  0.1904,    Adjusted R-squared:  0.1904 
+F-statistic:  4108 on 1 and 17464 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The result shows that every time the temperature increases by 1°C, hourly demand increases by 18 trips. This tells us that riders react sensitively to temperature. Given that Capital Bikeshare has expanded throughout Washington, DC, and is now being enjoyed by a greater no. of users, we next wish to determine whether the whole system is more reliant on temperature.</p>
+<p>The first step is to split the dataset into year 1, from October 1, 2016 to September 30, 2017 and year 2, from October 1, 2017 to September 30, 2018. We will create a new column to distinguish these two datasets.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(a,bikeshare)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>data2<span class="sc">$</span>a[data2<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">2016</span> <span class="sc">&amp;</span> (data2<span class="sc">$</span>month <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">|</span> data2<span class="sc">$</span>month <span class="sc">&lt;=</span> <span class="dv">12</span>)] <span class="ot">&lt;-</span> <span class="st">"year1"</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>data2<span class="sc">$</span>a[data2<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">2017</span> <span class="sc">&amp;</span> (data2<span class="sc">$</span>month <span class="sc">&gt;=</span> <span class="dv">1</span> <span class="sc">|</span> data2<span class="sc">$</span>month <span class="sc">&lt;=</span> <span class="dv">9</span>)] <span class="ot">&lt;-</span> <span class="st">"year1"</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>data2<span class="sc">$</span>a[data2<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">2017</span> <span class="sc">&amp;</span> (data2<span class="sc">$</span>month <span class="sc">&gt;=</span> <span class="dv">10</span> <span class="sc">|</span> data2<span class="sc">$</span>month <span class="sc">&lt;=</span> <span class="dv">12</span>)] <span class="ot">&lt;-</span> <span class="st">"year2"</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>data2<span class="sc">$</span>a[data2<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">2018</span> <span class="sc">&amp;</span> (data2<span class="sc">$</span>month <span class="sc">&gt;=</span> <span class="dv">1</span> <span class="sc">|</span> data2<span class="sc">$</span>month <span class="sc">&lt;=</span> <span class="dv">9</span>)] <span class="ot">&lt;-</span> <span class="st">"year2"</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      a year month day hour member weekend season temperature dewpoint humidity
+1 year1 2016    10   1    0     80       1   fall       18.33       65      100
+2 year1 2016    10   1    1     53       1   fall       17.78       64      100
+3 year1 2016    10   1    2     27       1   fall       17.78       64      100
+4 year1 2016    10   1    3     20       1   fall       17.78       64      100
+5 year1 2016    10   1    4     11       1   fall       17.78       64      100
+6 year1 2016    10   1    5     14       1   fall       17.78       64      100
+  windspeed windgust pressure precip precipaccum weather rental
+1         6        0     30.1    0.0           0       3    103
+2        10        0     30.1    0.0           0       3     63
+3        10        0     30.1    0.0           0       3     33
+4        10        0     30.1    0.1           0       3     23
+5         9        0     30.1    0.0           0       3     11
+6         9        0     30.1    0.0           0       3     15</code></pre>
+</div>
+</div>
+<p>Next, we will need to use t tests to determine whether correlation coefficients between bike rental demand and temperature for the past two years are similar or different.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(data2<span class="sc">$</span>temperature[data2<span class="sc">$</span>a <span class="sc">==</span> <span class="st">"year1"</span>], data2<span class="sc">$</span>rental[data2<span class="sc">$</span>a <span class="sc">==</span> <span class="st">"year1"</span>])</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>t1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  data2$temperature[data2$a == "year1"] and data2$rental[data2$a == "year1"]
+t = 23.548, df = 2205, p-value &lt; 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.4142947 0.4809981
+sample estimates:
+      cor 
+0.4482702 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>t2 <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(data2<span class="sc">$</span>temperature[data2<span class="sc">$</span>a <span class="sc">==</span> <span class="st">"year2"</span>], data2<span class="sc">$</span>rental[data2<span class="sc">$</span>a <span class="sc">==</span> <span class="st">"year2"</span>])</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  data2$temperature[data2$a == "year2"] and data2$rental[data2$a == "year2"]
+t = 59.154, df = 15257, p-value &lt; 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.4189347 0.4447493
+sample estimates:
+      cor 
+0.4319305 </code></pre>
+</div>
+</div>
+<p>The results demonstrate that correlations between the temperature and the number of hourly bike rentals for both years are significant, with p-values of &lt;0.01 in both cases. However, the correlation coefficients differ, with year1 (October 1, 2016 - September 30, 2017) higher, with a correlation of 0.448, than year 2 (October 1, 2017 - September 30, 2018), with a slightly lower correlation of 0.43.</p>
+<p>The last step is to visualize the above analysis and directly compare the correlation result for two years by drawing their regression lines for each year in a scatter plot.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
